@@ -1,13 +1,12 @@
-# Wolhalla project records
+# Projectdocumentatie voor Wolhalla
 
-This folder keeps lightweight project documentation for the Wolhalla app.
+In deze map staat de projectdocumentatie voor de Wolhalla-app.
 
-## Contents
+## Inhoud
 
-- [CHANGELOG.md](./CHANGELOG.md) — notable changes, newest first.
-- [STRUCTURE.md](./STRUCTURE.md) — workspace and application layout.
-- [reports/](./reports/) — project reports and investigation notes.
+- [CHANGELOG.md](./CHANGELOG.md) — belangrijke wijzigingen, nieuwste bovenaan.
+- [STRUCTURE.md](./STRUCTURE.md) — indeling van de werkruimte en app.
+- [reports/](./reports/) — projectrapporten en onderzoeksnotities.
 
-Update these records as the application takes shape. Keep implementation details
-in the application source and link to relevant files from these documents when
-they become available.
+Werk deze documentatie bij naarmate de app zich verder ontwikkelt. Bewaar
+implementatiedetails bij de broncode en verwijs ernaar vanuit deze documenten.

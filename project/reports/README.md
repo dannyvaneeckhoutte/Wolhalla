@@ -1,6 +1,6 @@
-# Reports
+# Rapporten
 
-Store project reports, audits, and investigation notes in this folder. Give
-each report a descriptive filename and include its date and scope near the top.
+Bewaar projectrapporten, audits en onderzoeksnotities in deze map. Geef elk
+rapport een duidelijke bestandsnaam en vermeld bovenaan de datum en reikwijdte.
 
-No reports have been added yet.
+Er zijn nog geen rapporten toegevoegd.

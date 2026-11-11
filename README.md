@@ -1,33 +1,33 @@
 # Wolhalla
 
-Wolhalla is a Windows desktop app for organizing yarn inventory and the projects
-that use it. The initial app provides local yarn records, skein counts, searchable
-and sortable stock, project associations, and photo attachments.
+Wolhalla is een Windows-app om je garenvoorraad en de projecten waarin je garen
+gebruikt te beheren. De app biedt lokaal opgeslagen garengegevens, aantallen
+bollen, een doorzoekbare en sorteerbare voorraad, projectkoppelingen en foto's.
 
-## Requirements
+## Benodigdheden
 
-- Windows 10 or later
-- .NET 10 SDK with Windows desktop development support
-- Visual Studio 2022 or Visual Studio Code with the C# Dev Kit (optional)
+- Windows 10 of hoger
+- De .NET 10 SDK met ondersteuning voor Windows-desktopapps
+- Visual Studio 2022 of Visual Studio Code met de C# Dev Kit (optioneel)
 
-## Run
+## Starten
 
 ```powershell
 dotnet restore Wolhalla\Wolhalla.csproj
 dotnet run --project Wolhalla\Wolhalla.csproj
 ```
 
-In VS Code, use **Terminal > Run Task > Wolhalla: run**. Use
-**Terminal > Run Task > Wolhalla: build** to build the app.
+Kies in VS Code **Terminal > Taak uitvoeren > Wolhalla: uitvoeren**. Kies
+**Terminal > Taak uitvoeren > Wolhalla: bouwen** om de app te bouwen.
 
-Wolhalla stores its SQLite database and copied yarn photos in
-`%LOCALAPPDATA%\Wolhalla`. They remain on the computer and are not included in
-the source repository.
+Wolhalla bewaart de SQLite-database en kopieën van garenfoto's in
+`%LOCALAPPDATA%\Wolhalla`. Deze gegevens blijven op je computer en worden niet
+opgenomen in de broncodeopslagplaats.
 
-## Project layout
+## Projectindeling
 
-- `Wolhalla/` — WPF application and SQLite data layer.
-- `project/` — project changelog, structure notes, and reports.
-- `.vscode/tasks.json` — VS Code build and run tasks.
+- `Wolhalla/` — WPF-app en SQLite-gegevenslaag.
+- `project/` — projectlogboek, structuurinformatie en rapporten.
+- `.vscode/tasks.json` — VS Code-taken om de app te bouwen en te starten.
 
-See [project/STRUCTURE.md](./project/STRUCTURE.md) for a fuller outline.
+Zie [project/STRUCTURE.md](./project/STRUCTURE.md) voor een uitgebreider overzicht.

@@ -1,9 +1,10 @@
-# Changelog
+# Wijzigingslogboek
 
-Notable project changes are recorded here, with the newest entries first.
+Belangrijke projectwijzigingen staan hier, met de nieuwste bovenaan.
 
-## Unreleased
+## Nog niet uitgebracht
 
-- Added a WPF Windows desktop starter app for yarn inventory, project associations,
-  search, sorting, local SQLite storage, and photo attachments.
-- Initialized the Wolhalla project tracking folder.
+- De gebruikersinterface en projectdocumentatie naar het Nederlands vertaald.
+- Een WPF-desktopapp voor garenvoorraad toegevoegd, met projectkoppelingen,
+  zoeken, sorteren, lokale SQLite-opslag en foto-upload.
+- De projectmap voor Wolhalla aangemaakt.

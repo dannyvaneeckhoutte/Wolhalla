@@ -1,8 +1,8 @@
-# Project structure
+# Projectstructuur
 
-## Workspace
+## Werkruimte
 
-The workspace contains a WPF desktop application and its project tracking area.
+De werkruimte bevat een WPF-desktopapp en de bijbehorende projectdocumentatie.
 
 ```text
 Wolhalla/
@@ -25,6 +25,6 @@ project/
 README.md
 ```
 
-The app stores `wolhalla.db` and copied yarn photos under
-`%LOCALAPPDATA%\Wolhalla`, outside the source tree. Update this outline as tests
-and supporting assets are added.
+De app bewaart `wolhalla.db` en kopieën van garenfoto's buiten de broncode, in
+`%LOCALAPPDATA%\Wolhalla`. Werk dit overzicht bij wanneer er tests en aanvullende
+bestanden worden toegevoegd.
