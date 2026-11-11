@@ -7,6 +7,7 @@
     <meta name="description" content="Beheer je garenvoorraad en projecten met Wolhalla.">
     <title>Wolhalla — Garenvoorraad</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="color-names.js" defer></script>
     <script src="app.js" defer></script>
   </head>
   <body>
@@ -62,19 +63,16 @@
               <label for="name">Naam <span class="required">*</span></label>
               <input id="name" name="name" type="text" maxlength="120" placeholder="Bijv. Merino Soft" required>
 
-              <div class="field-row">
-                <div>
-                  <label for="brand">Merk</label>
-                  <input id="brand" name="brand" type="text" maxlength="100" placeholder="Bijv. Lang Yarns">
-                </div>
-                <div>
-                  <label for="color">Kleur</label>
-                  <div class="color-entry">
-                    <input id="color" name="color" type="text" maxlength="100" placeholder="Bijv. mosgroen">
-                    <input class="color-picker" id="color-picker" type="color" value="#355747" aria-label="Kleur kiezen">
-                  </div>
-                </div>
+              <label for="brand">Merk</label>
+              <input id="brand" name="brand" type="text" maxlength="100" placeholder="Bijv. Lang Yarns">
+
+              <label for="color">Kleur</label>
+              <div class="color-entry">
+                <input id="color" name="color" type="text" list="color-suggestions" maxlength="100" placeholder="Typ bijv. rood of lichtblauw" autocomplete="off">
+                <input class="color-picker" id="color-picker" type="color" value="#355747" aria-label="Kleur kiezen">
               </div>
+              <datalist id="color-suggestions"></datalist>
+              <p class="field-help">Kies een Nederlandse kleurnaam of gebruik de kleurkiezer.</p>
 
               <div class="field-row">
                 <div>
@@ -133,6 +131,10 @@
                   <option value="brand">Merk A–Z</option>
                 </select>
               </label>
+              <div class="view-toggle" role="group" aria-label="Weergave van de voorraad">
+                <button class="view-button" id="thumbnail-view" type="button" aria-label="Miniaturen" aria-pressed="true" title="Miniaturen">▦</button>
+                <button class="view-button" id="list-view" type="button" aria-label="Lijst" aria-pressed="false" title="Lijst">☰</button>
+              </div>
             </div>
             <div class="yarn-list" id="yarn-list" aria-live="polite"></div>
           </section>

@@ -3,6 +3,17 @@ const DATABASE_VERSION = 2;
 const STORE_NAME = "yarns";
 const DEFAULT_COLOR = "#355747";
 const BACKUP_FORMAT = "wolhalla-backup";
+const COLOR_PALETTE = window.WolhallaColorNames;
+const COLOR_BY_NAME = new Map();
+const COLOR_BY_CSS_NAME = new Map();
+const COLOR_BY_HEX = new Map();
+
+for (const color of COLOR_PALETTE) {
+  const name = normalizeColorName(color.name);
+  if (!COLOR_BY_NAME.has(name)) COLOR_BY_NAME.set(name, color);
+  COLOR_BY_CSS_NAME.set(color.cssName, color);
+  if (!COLOR_BY_HEX.has(color.hex)) COLOR_BY_HEX.set(color.hex, color);
+}
 
 const form = document.querySelector("#yarn-form");
 const yarnList = document.querySelector("#yarn-list");
@@ -10,12 +21,16 @@ const searchInput = document.querySelector("#search");
 const sortSelect = document.querySelector("#sort");
 const colorInput = document.querySelector("#color");
 const colorPicker = document.querySelector("#color-picker");
+const thumbnailViewButton = document.querySelector("#thumbnail-view");
+const listViewButton = document.querySelector("#list-view");
 const saveButton = document.querySelector("#save-button");
 const deleteButton = document.querySelector("#delete-button");
 const toast = document.querySelector("#toast");
 
 let yarns = [];
 let selectedId = null;
+let selectedColorHex = DEFAULT_COLOR;
+let viewMode = "thumbnails";
 let toastTimer;
 
 function openDatabase() {
@@ -90,6 +105,76 @@ function text(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function normalizeColorName(value) {
+  return text(value).toLocaleLowerCase("nl")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\s-]/g, "");
+}
+
+function isHexColor(value) {
+  return typeof value === "string" && /^#[\da-f]{6}$/i.test(value);
+}
+
+function findNamedColor(value) {
+  const normalized = normalizeColorName(value);
+  return COLOR_BY_NAME.get(normalized)
+    || COLOR_BY_CSS_NAME.get(normalized)
+    || COLOR_BY_HEX.get(normalized);
+}
+
+function nearestNamedColor(value) {
+  const hex = text(value).toLowerCase();
+  const exact = COLOR_BY_HEX.get(hex);
+  if (exact) return exact;
+
+  const red = Number.parseInt(hex.slice(1, 3), 16);
+  const green = Number.parseInt(hex.slice(3, 5), 16);
+  const blue = Number.parseInt(hex.slice(5, 7), 16);
+  let nearest = COLOR_PALETTE[0];
+  let shortestDistance = Number.POSITIVE_INFINITY;
+  for (const color of COLOR_PALETTE) {
+    const colorRed = Number.parseInt(color.hex.slice(1, 3), 16);
+    const colorGreen = Number.parseInt(color.hex.slice(3, 5), 16);
+    const colorBlue = Number.parseInt(color.hex.slice(5, 7), 16);
+    const distance = (red - colorRed) ** 2 + (green - colorGreen) ** 2 + (blue - colorBlue) ** 2;
+    if (distance < shortestDistance) {
+      shortestDistance = distance;
+      nearest = color;
+    }
+  }
+  return nearest;
+}
+
+function displayColorName(value) {
+  const named = findNamedColor(value);
+  if (named) return named.name;
+  return isHexColor(value) ? nearestNamedColor(value).name : text(value);
+}
+
+function yarnColorHex(yarn) {
+  if (isHexColor(yarn.colorHex)) return yarn.colorHex.toLowerCase();
+  if (isHexColor(yarn.color)) return yarn.color.toLowerCase();
+  return findNamedColor(yarn.color)?.hex || null;
+}
+
+function populateColorSuggestions() {
+  const uniqueNames = new Map();
+  for (const color of COLOR_PALETTE) {
+    const key = normalizeColorName(color.name);
+    if (!uniqueNames.has(key)) uniqueNames.set(key, color.name);
+  }
+
+  const options = Array.from(uniqueNames.values())
+    .sort((a, b) => a.localeCompare(b, "nl"))
+    .map((name) => {
+      const option = document.createElement("option");
+      option.value = name;
+      return option;
+    });
+  document.querySelector("#color-suggestions").replaceChildren(...options);
+}
+
 function yardsToMeters(value) {
   return Number(value) * 0.9144;
 }
@@ -100,11 +185,6 @@ function formatLengthMeters(value) {
   return Number.isFinite(amount)
     ? `${new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 2 }).format(amount)} m`
     : "";
-}
-
-function setColorPicker(value) {
-  const color = text(value);
-  colorPicker.value = /^#[\da-f]{6}$/i.test(color) ? color : DEFAULT_COLOR;
 }
 
 function projectNames(value) {
@@ -142,8 +222,9 @@ function createYarnCard(yarn) {
   swatch.className = "yarn-swatch";
   swatch.setAttribute("aria-hidden", "true");
   swatch.textContent = "w";
-  if (window.CSS && CSS.supports("color", text(yarn.color))) {
-    swatch.style.backgroundColor = text(yarn.color);
+  const swatchColor = yarnColorHex(yarn);
+  if (swatchColor || (window.CSS && CSS.supports("color", text(yarn.color)))) {
+    swatch.style.backgroundColor = swatchColor || text(yarn.color);
     swatch.classList.add("has-color");
   }
   button.append(swatch);
@@ -168,7 +249,7 @@ function createYarnCard(yarn) {
 
   const details = document.createElement("div");
   details.className = "yarn-details";
-  [yarn.color, yarn.weight, yarn.fiber, formatLengthMeters(yarn.lengthMeters)]
+  [displayColorName(yarn.color), yarn.weight, yarn.fiber, formatLengthMeters(yarn.lengthMeters)]
     .filter(Boolean)
     .forEach((detail) => details.append(createChip(detail)));
   if (details.childElementCount) content.append(details);
@@ -191,7 +272,8 @@ function render() {
   const sortBy = sortSelect.value;
   const filtered = yarns
     .filter((yarn) => [
-      yarn.name, yarn.brand, yarn.color, yarn.weight, yarn.fiber, ...projectNames(yarn.projects),
+      yarn.name, yarn.brand, yarn.color, displayColorName(yarn.color), yarn.weight, yarn.fiber,
+      ...projectNames(yarn.projects),
     ].some((value) => text(value).toLocaleLowerCase("nl").includes(query)))
     .sort((a, b) => sortBy === "quantity"
       ? b.quantity - a.quantity || a.name.localeCompare(b.name, "nl")
@@ -223,11 +305,19 @@ function render() {
   document.querySelector("#inventory-count").textContent = `${filtered.length} ${filtered.length === 1 ? "item" : "items"}`;
 }
 
+function setViewMode(mode) {
+  viewMode = mode;
+  const isList = viewMode === "list";
+  yarnList.classList.toggle("is-list", isList);
+  thumbnailViewButton.setAttribute("aria-pressed", String(!isList));
+  listViewButton.setAttribute("aria-pressed", String(isList));
+}
+
 function resetForm() {
   form.reset();
   form.elements.quantity.value = "1";
   selectedId = null;
-  setColorPicker(colorInput.value);
+  selectedColorHex = colorPicker.value;
   saveButton.textContent = "Garen opslaan";
   deleteButton.hidden = true;
 }
@@ -238,8 +328,9 @@ function selectYarn(id) {
   selectedId = yarn.id;
   form.elements.name.value = yarn.name;
   form.elements.brand.value = yarn.brand;
-  form.elements.color.value = yarn.color;
-  setColorPicker(yarn.color);
+  form.elements.color.value = displayColorName(yarn.color);
+  selectedColorHex = yarnColorHex(yarn);
+  colorPicker.value = selectedColorHex || DEFAULT_COLOR;
   form.elements.weight.value = yarn.weight;
   form.elements.fiber.value = yarn.fiber;
   form.elements.lengthMeters.value = yarn.lengthMeters ?? "";
@@ -276,6 +367,7 @@ form.addEventListener("submit", async (event) => {
     name,
     brand: text(form.elements.brand.value),
     color: text(form.elements.color.value),
+    colorHex: text(form.elements.color.value) ? selectedColorHex : null,
     weight: text(form.elements.weight.value),
     fiber: text(form.elements.fiber.value),
     lengthMeters,
@@ -320,13 +412,30 @@ deleteButton.addEventListener("click", async () => {
 searchInput.addEventListener("input", render);
 sortSelect.addEventListener("change", render);
 colorPicker.addEventListener("input", () => {
-  colorInput.value = colorPicker.value;
+  selectedColorHex = colorPicker.value.toLowerCase();
+  colorInput.value = nearestNamedColor(selectedColorHex).name;
 });
-colorInput.addEventListener("input", () => {
-  if (/^#[\da-f]{6}$/i.test(colorInput.value.trim())) {
-    colorPicker.value = colorInput.value.trim();
+function syncColorFromText() {
+  const value = text(colorInput.value);
+  const named = findNamedColor(value);
+  if (named) {
+    colorInput.value = named.name;
+    colorPicker.value = named.hex;
+    selectedColorHex = named.hex;
+  } else if (isHexColor(value)) {
+    colorPicker.value = value.toLowerCase();
+    selectedColorHex = colorPicker.value;
+    colorInput.value = nearestNamedColor(selectedColorHex).name;
+  } else {
+    selectedColorHex = null;
   }
-});
+}
+colorInput.addEventListener("input", syncColorFromText);
+colorInput.addEventListener("change", syncColorFromText);
+thumbnailViewButton.addEventListener("click", () => setViewMode("thumbnails"));
+listViewButton.addEventListener("click", () => setViewMode("list"));
+populateColorSuggestions();
+setViewMode(viewMode);
 
 document.querySelector("#export-button").addEventListener("click", () => {
   const backup = {
@@ -336,7 +445,8 @@ document.querySelector("#export-button").addEventListener("click", () => {
     yarns: yarns.map((yarn) => ({
       name: yarn.name,
       brand: yarn.brand,
-      color: yarn.color,
+      color: displayColorName(yarn.color),
+      colorHex: yarnColorHex(yarn),
       weight: yarn.weight,
       fiber: yarn.fiber,
       lengthMeters: yarn.lengthMeters ?? null,
@@ -368,18 +478,24 @@ document.querySelector("#import-file").addEventListener("change", async (event) 
     }
     const imported = backup.yarns.map((item) => {
       const quantity = Number(item.quantity);
+      const color = displayColorName(item.color);
+      const colorHex = item.colorHex == null || item.colorHex === ""
+        ? yarnColorHex({ color: item.color })
+        : text(item.colorHex).toLowerCase();
       const rawLength = backup.version === 1 ? item.yardage : item.lengthMeters;
       const lengthMeters = rawLength == null || rawLength === ""
         ? null
         : backup.version === 1 ? yardsToMeters(rawLength) : Number(rawLength);
       if (!text(item.name) || !Number.isInteger(quantity) || quantity < 0
+        || (colorHex !== null && !isHexColor(colorHex))
         || (lengthMeters !== null && (!Number.isFinite(lengthMeters) || lengthMeters < 0))) {
         throw new Error("De back-up bevat garengegevens die niet geldig zijn.");
       }
       return {
         name: text(item.name),
         brand: text(item.brand),
-        color: text(item.color),
+        color,
+        colorHex,
         weight: text(item.weight),
         fiber: text(item.fiber),
         lengthMeters,

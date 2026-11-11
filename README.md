@@ -5,15 +5,19 @@ app werkt zonder account of server en kan als statische site op GitHub Pages
 draaien.
 
 [Open de live app](https://dannyvaneeckhoutte.github.io/Wolhalla/) ·
-[Bekijk release v1.0.0](https://github.com/dannyvaneeckhoutte/Wolhalla/releases/tag/v1.0.0)
+[Bekijk release v1.1.0](https://github.com/dannyvaneeckhoutte/Wolhalla/releases/tag/v1.1.0)
 
 [![GitHub Pages deployment](https://github.com/dannyvaneeckhoutte/Wolhalla/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/dannyvaneeckhoutte/Wolhalla/actions/workflows/pages.yml)
 
 ## Functies
 
-- Garen beheren met merk, kleurkiezer, dikte, samenstelling, lengte in meters en aantal bollen.
-- Projecten koppelen, zoeken en sorteren op naam, kleur, merk of aantal bollen.
+- Garen beheren met Nederlandse kleurnamen, merk, dikte, samenstelling, lengte in meters en aantal bollen.
+- Voorraad in miniaturen of als lijst bekijken, projecten koppelen, zoeken en sorteren.
 - Je voorraad bewaren in de browser en back-ups exporteren of importeren.
+
+De kleurnamen volgen de CSS-namen uit de
+[MDN-kleurenlijst](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/named-color),
+met Nederlandse labels.
 
 ## GitHub Pages
 

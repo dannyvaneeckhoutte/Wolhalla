@@ -5,6 +5,7 @@ De repository bevat de statische browserapp en de bijbehorende documentatie.
 ```text
 web/
   app.js
+  color-names.js
   index.html
   styles.css
 .github/
@@ -18,5 +19,6 @@ project/
 README.md
 ```
 
-De app gebruikt IndexedDB voor voorraad en foto's. De workflow in
+De app gebruikt IndexedDB voor garen en projecten. `color-names.js` bevat de
+Nederlandse labels voor CSS-kleurnamen. De workflow in
 `.github/workflows/pages.yml` publiceert `web/` naar GitHub Pages.
