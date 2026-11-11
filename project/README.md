@@ -1,6 +1,6 @@
 # Projectdocumentatie voor Wolhalla
 
-In deze map staat de projectdocumentatie voor de Wolhalla-app.
+In deze map staat de projectdocumentatie voor de Wolhalla-browserapp.
 
 ## Inhoud
 
@@ -8,5 +8,5 @@ In deze map staat de projectdocumentatie voor de Wolhalla-app.
 - [STRUCTURE.md](./STRUCTURE.md) — indeling van de werkruimte en app.
 - [reports/](./reports/) — projectrapporten en onderzoeksnotities.
 
-Werk deze documentatie bij naarmate de app zich verder ontwikkelt. Bewaar
+Werk deze documentatie bij naarmate de browserapp zich verder ontwikkelt. Bewaar
 implementatiedetails bij de broncode en verwijs ernaar vanuit deze documenten.

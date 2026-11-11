@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f5ef">
+    <meta name="description" content="Beheer je garenvoorraad en projecten met Wolhalla.">
+    <title>Wolhalla — Garenvoorraad</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Wolhalla startpagina">
+          <span class="brand-mark" aria-hidden="true">w</span>
+          <span>Wolhalla</span>
+        </a>
+        <div class="topbar-actions">
+          <button class="button button-quiet" id="import-button" type="button">Back-up importeren</button>
+          <input class="visually-hidden" id="import-file" type="file" accept="application/json,.json">
+          <button class="button button-quiet" id="export-button" type="button">Back-up downloaden</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="intro">
+          <div>
+            <p class="eyebrow">JOUW CREATIEVE VOORRAAD</p>
+            <h1>Elke draad op<br><span>zijn plek.</span></h1>
+            <p class="intro-copy">Je garen, kleuren en projecten. Alles overzichtelijk bij elkaar.</p>
+          </div>
+          <div class="stats" aria-label="Voorraadoverzicht">
+            <div class="stat">
+              <span class="stat-icon skein-icon" aria-hidden="true">✳</span>
+              <span class="stat-value" id="total-skeins">0</span>
+              <span class="stat-label">bollen op voorraad</span>
+            </div>
+            <div class="stat">
+              <span class="stat-icon yarn-icon" aria-hidden="true">◌</span>
+              <span class="stat-value" id="total-yarns">0</span>
+              <span class="stat-label">soorten garen</span>
+            </div>
+            <div class="stat">
+              <span class="stat-icon project-icon" aria-hidden="true">⌂</span>
+              <span class="stat-value" id="total-projects">0</span>
+              <span class="stat-label">projecten</span>
+            </div>
+          </div>
+        </section>
+
+        <div class="workspace">
+          <section class="panel form-panel" aria-labelledby="form-title">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">IN JE COLLECTIE</p>
+                <h2 id="form-title">Garen toevoegen</h2>
+              </div>
+              <span class="heading-mark" aria-hidden="true">＋</span>
+            </div>
+            <form id="yarn-form">
+              <label for="name">Naam <span class="required">*</span></label>
+              <input id="name" name="name" type="text" maxlength="120" placeholder="Bijv. Merino Soft" required>
+
+              <div class="field-row">
+                <div>
+                  <label for="brand">Merk</label>
+                  <input id="brand" name="brand" type="text" maxlength="100" placeholder="Bijv. Lang Yarns">
+                </div>
+                <div>
+                  <label for="color">Kleur</label>
+                  <input id="color" name="color" type="text" maxlength="100" placeholder="Bijv. mosgroen">
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div>
+                  <label for="weight">Garendikte</label>
+                  <input id="weight" name="weight" type="text" maxlength="80" placeholder="Bijv. DK">
+                </div>
+                <div>
+                  <label for="fiber">Samenstelling</label>
+                  <input id="fiber" name="fiber" type="text" maxlength="120" placeholder="Bijv. 100% merino">
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div>
+                  <label for="yardage">Lengte <span class="label-hint">(yards per bol)</span></label>
+                  <input id="yardage" name="yardage" type="number" min="0" step="any" placeholder="0">
+                </div>
+                <div>
+                  <label for="quantity">Aantal bollen <span class="required">*</span></label>
+                  <input id="quantity" name="quantity" type="number" min="0" step="1" value="1" required>
+                </div>
+              </div>
+
+              <label for="projects">Projecten</label>
+              <input id="projects" name="projects" type="text" maxlength="300" placeholder="Bijv. zomertop, sjaal">
+              <p class="field-help">Meerdere projecten? Scheid ze met een komma.</p>
+
+              <label for="photo">Foto</label>
+              <input id="photo" name="photo" type="file" accept="image/*">
+              <p class="field-help">Foto's blijven in deze browser bewaard (max. 5 MB).</p>
+              <div class="photo-preview" id="photo-preview" hidden></div>
+
+              <div class="form-actions">
+                <button class="button button-primary" id="save-button" type="submit">Garen opslaan</button>
+                <button class="button button-quiet" id="new-button" type="button">Nieuw</button>
+                <button class="button button-danger" id="delete-button" type="button" hidden>Verwijderen</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="inventory-section" aria-labelledby="inventory-title">
+            <div class="inventory-heading">
+              <div>
+                <p class="eyebrow">ALLES BIJ DE HAND</p>
+                <h2 id="inventory-title">Jouw garenvoorraad</h2>
+              </div>
+              <span class="inventory-count" id="inventory-count">0 items</span>
+            </div>
+            <div class="inventory-tools">
+              <label class="search-field">
+                <span class="search-icon" aria-hidden="true">⌕</span>
+                <span class="visually-hidden">Zoek in je voorraad</span>
+                <input id="search" type="search" placeholder="Zoek garen, kleur of project...">
+              </label>
+              <label class="sort-field">
+                <span class="visually-hidden">Sorteer voorraad</span>
+                <select id="sort">
+                  <option value="name">Naam A–Z</option>
+                  <option value="quantity">Aantal bollen</option>
+                  <option value="brand">Merk A–Z</option>
+                </select>
+              </label>
+            </div>
+            <div class="yarn-list" id="yarn-list" aria-live="polite"></div>
+          </section>
+        </div>
+      </main>
+      <footer>
+        <span>Met aandacht gemaakt voor alles wat je nog gaat maken.</span>
+        <span>Je gegevens blijven op dit apparaat.</span>
+      </footer>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

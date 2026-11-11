@@ -1,28 +1,15 @@
 # Projectstructuur
 
-## Werkruimte
-
-De werkruimte bevat een WPF-desktopapp en de bijbehorende projectdocumentatie.
+De repository bevat de statische browserapp en de bijbehorende documentatie.
 
 ```text
-Wolhalla/
-  App.xaml
-  Data/
-    WolhallaDbContext.cs
-  Services/
-    OpenAiCredentialStore.cs
-    OpenAiYarnImageAnalyzer.cs
-    YarnImageAnalyzer.cs
-  OpenAiSettingsWindow.xaml
-  OpenAiSettingsWindow.xaml.cs
-  MainWindow.xaml
-  MainWindow.xaml.cs
-  Models/
-    Project.cs
-    Yarn.cs
-  Wolhalla.csproj
-.vscode/
-  tasks.json
+web/
+  app.js
+  index.html
+  styles.css
+.github/
+  workflows/
+    pages.yml
 project/
   CHANGELOG.md
   README.md
@@ -31,6 +18,5 @@ project/
 README.md
 ```
 
-De app bewaart `wolhalla.db` en kopieën van garenfoto's buiten de broncode, in
-`%LOCALAPPDATA%\Wolhalla`. Werk dit overzicht bij wanneer er tests en aanvullende
-bestanden worden toegevoegd.
+De app gebruikt IndexedDB voor voorraad en foto's. De workflow in
+`.github/workflows/pages.yml` publiceert `web/` naar GitHub Pages.
