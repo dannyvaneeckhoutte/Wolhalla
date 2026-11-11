@@ -3,7 +3,6 @@ name: Deploy Wolhalla web app
 on:
   push:
     branches:
-      - master
       - main
   workflow_dispatch:
 

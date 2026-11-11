@@ -13,7 +13,7 @@ draaien.
 ## GitHub Pages
 
 De workflow [`pages.yml`](./.github/workflows/pages.yml) publiceert de inhoud
-van [`web/`](./web/) na een push naar `master` of `main`. Schakel onder
+van [`web/`](./web/) na een push naar `main`. Schakel onder
 **Settings > Pages** de publicatiebron **GitHub Actions** in.
 
 ## Gegevens en lokaal gebruik
