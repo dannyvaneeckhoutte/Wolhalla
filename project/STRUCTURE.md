@@ -11,6 +11,8 @@ web/
 .github/
   workflows/
     pages.yml
+screenshots/
+  wolhalla-app.png
 project/
   CHANGELOG.md
   README.md
@@ -22,3 +24,4 @@ README.md
 De app gebruikt IndexedDB voor garen en projecten. `color-names.js` bevat de
 Nederlandse labels voor CSS-kleurnamen. De workflow in
 `.github/workflows/pages.yml` publiceert `web/` naar GitHub Pages.
+`screenshots/wolhalla-app.png` is de app-afbeelding in de hoofd-README.

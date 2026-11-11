@@ -5,15 +5,20 @@ app werkt zonder account of server en kan als statische site op GitHub Pages
 draaien.
 
 [Open de live app](https://dannyvaneeckhoutte.github.io/Wolhalla/) ·
-[Bekijk release v1.2.0](https://github.com/dannyvaneeckhoutte/Wolhalla/releases/tag/v1.2.0)
+[Bekijk versie v1.3.0](https://github.com/dannyvaneeckhoutte/Wolhalla/tree/v1.3.0)
 
 [![GitHub Pages deployment](https://github.com/dannyvaneeckhoutte/Wolhalla/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/dannyvaneeckhoutte/Wolhalla/actions/workflows/pages.yml)
+
+![Wolhalla garenvoorraad met geselecteerd garen](./screenshots/wolhalla-app.png)
 
 ## Functies
 
 - Garen beheren met Nederlandse kleurnamen, merk, dikte, samenstelling, lengte in meters, gewicht per bol, bewaarlocatie en aantal bollen.
 - Garen toewijzen aan een van de vier vakken in de bruine kast in de garage of de kast aan het raam in de living.
-- Voorraad standaard als lijst bekijken of naar miniaturen wisselen, projecten koppelen, zoeken en sorteren.
+- Voorraad met overzichtscijfers bekijken, filteren op bewaarlocatie, zoeken en sorteren op alle specificaties.
+- Garendetails bekijken door een item te selecteren; de weergave past zich aan desktop, tablet en mobiel aan.
+- Voorraad standaard als lijst bekijken of op grotere schermen naar miniaturen wisselen; projecten aan garens koppelen.
+- Bij een lege voorraad vijf tijdelijke voorbeeldgarens bekijken; deze worden niet opgeslagen of in back-ups opgenomen.
 - De app standaard in donkere modus gebruiken of overschakelen naar de lichte modus.
 - Je voorraad bewaren in de browser en back-ups exporteren of importeren.
 
