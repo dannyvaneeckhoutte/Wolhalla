@@ -9,6 +9,12 @@ Wolhalla/
   App.xaml
   Data/
     WolhallaDbContext.cs
+  Services/
+    OpenAiCredentialStore.cs
+    OpenAiYarnImageAnalyzer.cs
+    YarnImageAnalyzer.cs
+  OpenAiSettingsWindow.xaml
+  OpenAiSettingsWindow.xaml.cs
   MainWindow.xaml
   MainWindow.xaml.cs
   Models/
