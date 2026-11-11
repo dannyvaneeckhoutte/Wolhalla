@@ -2,8 +2,8 @@
 
 Belangrijke projectwijzigingen staan hier, met de nieuwste bovenaan.
 
-## Nog niet uitgebracht
+## 1.0.0 - 2026-11-11
 
-- Statische browserapp toegevoegd voor de garenvoorraad, inclusief foto's,
-  projectkoppelingen, zoeken, sorteren en back-up import/export.
-- GitHub Actions-workflow toegevoegd voor publicatie op GitHub Pages.
+- Eerste versie van de browserapp voor garenvoorraad, projecten en foto's.
+- Zoeken, sorteren en back-up import/export toegevoegd.
+- GitHub Actions-workflow toegevoegd voor GitHub Pages-publicatie.
