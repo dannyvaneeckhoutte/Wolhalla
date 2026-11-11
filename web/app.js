@@ -3,6 +3,7 @@ const DATABASE_VERSION = 2;
 const STORE_NAME = "yarns";
 const DEFAULT_COLOR = "#355747";
 const BACKUP_FORMAT = "wolhalla-backup";
+const THEME_STORAGE_KEY = "wolhalla-theme";
 const COLOR_PALETTE = window.WolhallaColorNames;
 const COLOR_BY_NAME = new Map();
 const COLOR_BY_CSS_NAME = new Map();
@@ -23,6 +24,9 @@ const colorInput = document.querySelector("#color");
 const colorPicker = document.querySelector("#color-picker");
 const thumbnailViewButton = document.querySelector("#thumbnail-view");
 const listViewButton = document.querySelector("#list-view");
+const themeToggleButton = document.querySelector("#theme-toggle");
+const themeToggleIcon = document.querySelector("#theme-toggle-icon");
+const themeToggleLabel = document.querySelector("#theme-toggle-label");
 const saveButton = document.querySelector("#save-button");
 const deleteButton = document.querySelector("#delete-button");
 const toast = document.querySelector("#toast");
@@ -30,7 +34,7 @@ const toast = document.querySelector("#toast");
 let yarns = [];
 let selectedId = null;
 let selectedColorHex = DEFAULT_COLOR;
-let viewMode = "thumbnails";
+let viewMode = "list";
 let toastTimer;
 
 function openDatabase() {
@@ -187,6 +191,14 @@ function formatLengthMeters(value) {
     : "";
 }
 
+function formatSkeinWeightGrams(value) {
+  if (value === null || value === undefined || value === "") return "";
+  const amount = Number(value);
+  return Number.isFinite(amount)
+    ? `${new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 2 }).format(amount)} g`
+    : "";
+}
+
 function projectNames(value) {
   const names = [];
   const seen = new Set();
@@ -249,7 +261,13 @@ function createYarnCard(yarn) {
 
   const details = document.createElement("div");
   details.className = "yarn-details";
-  [displayColorName(yarn.color), yarn.weight, yarn.fiber, formatLengthMeters(yarn.lengthMeters)]
+  [
+    displayColorName(yarn.color),
+    yarn.weight,
+    yarn.fiber,
+    formatLengthMeters(yarn.lengthMeters),
+    formatSkeinWeightGrams(yarn.skeinWeightGrams),
+  ]
     .filter(Boolean)
     .forEach((detail) => details.append(createChip(detail)));
   if (details.childElementCount) content.append(details);
@@ -273,7 +291,7 @@ function render() {
   const filtered = yarns
     .filter((yarn) => [
       yarn.name, yarn.brand, yarn.color, displayColorName(yarn.color), yarn.weight, yarn.fiber,
-      ...projectNames(yarn.projects),
+      formatSkeinWeightGrams(yarn.skeinWeightGrams), ...projectNames(yarn.projects),
     ].some((value) => text(value).toLocaleLowerCase("nl").includes(query)))
     .sort((a, b) => sortBy === "quantity"
       ? b.quantity - a.quantity || a.name.localeCompare(b.name, "nl")
@@ -313,6 +331,15 @@ function setViewMode(mode) {
   listViewButton.setAttribute("aria-pressed", String(isList));
 }
 
+function setTheme(theme) {
+  const isLight = theme === "light";
+  document.body.dataset.theme = isLight ? "light" : "dark";
+  themeToggleButton.setAttribute("aria-label", `Schakel naar ${isLight ? "donkere" : "lichte"} modus`);
+  themeToggleIcon.textContent = isLight ? "☾" : "☼";
+  themeToggleLabel.textContent = isLight ? "Donkere modus" : "Lichte modus";
+  document.querySelector('meta[name="theme-color"]').content = isLight ? "#f7f5ef" : "#141b18";
+}
+
 function resetForm() {
   form.reset();
   form.elements.quantity.value = "1";
@@ -334,6 +361,7 @@ function selectYarn(id) {
   form.elements.weight.value = yarn.weight;
   form.elements.fiber.value = yarn.fiber;
   form.elements.lengthMeters.value = yarn.lengthMeters ?? "";
+  form.elements.skeinWeightGrams.value = yarn.skeinWeightGrams ?? "";
   form.elements.quantity.value = String(yarn.quantity);
   form.elements.projects.value = projectNames(yarn.projects).join(", ");
   saveButton.textContent = "Wijzigingen opslaan";
@@ -349,6 +377,8 @@ form.addEventListener("submit", async (event) => {
   const quantity = Number(form.elements.quantity.value);
   const lengthInput = form.elements.lengthMeters.value;
   const lengthMeters = lengthInput === "" ? null : Number(lengthInput);
+  const skeinWeightInput = form.elements.skeinWeightGrams.value;
+  const skeinWeightGrams = skeinWeightInput === "" ? null : Number(skeinWeightInput);
   const name = text(form.elements.name.value);
   if (!name) {
     form.elements.name.setCustomValidity("Vul een garennaam in.");
@@ -358,6 +388,10 @@ form.addEventListener("submit", async (event) => {
   }
   if (!Number.isInteger(quantity) || quantity < 0 || (lengthMeters !== null && (!Number.isFinite(lengthMeters) || lengthMeters < 0))) {
     showToast("Controleer het aantal bollen en de garenlengte.", true);
+    return;
+  }
+  if (skeinWeightGrams !== null && (!Number.isFinite(skeinWeightGrams) || skeinWeightGrams < 0)) {
+    showToast("Het gewicht per bol moet nul of hoger zijn.", true);
     return;
   }
 
@@ -371,6 +405,7 @@ form.addEventListener("submit", async (event) => {
     weight: text(form.elements.weight.value),
     fiber: text(form.elements.fiber.value),
     lengthMeters,
+    skeinWeightGrams,
     quantity,
     projects: projectNames(form.elements.projects.value),
   };
@@ -434,8 +469,14 @@ colorInput.addEventListener("input", syncColorFromText);
 colorInput.addEventListener("change", syncColorFromText);
 thumbnailViewButton.addEventListener("click", () => setViewMode("thumbnails"));
 listViewButton.addEventListener("click", () => setViewMode("list"));
+themeToggleButton.addEventListener("click", () => {
+  const nextTheme = document.body.dataset.theme === "light" ? "dark" : "light";
+  setTheme(nextTheme);
+  localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+});
 populateColorSuggestions();
 setViewMode(viewMode);
+setTheme(localStorage.getItem(THEME_STORAGE_KEY) === "light" ? "light" : "dark");
 
 document.querySelector("#export-button").addEventListener("click", () => {
   const backup = {
@@ -450,6 +491,7 @@ document.querySelector("#export-button").addEventListener("click", () => {
       weight: yarn.weight,
       fiber: yarn.fiber,
       lengthMeters: yarn.lengthMeters ?? null,
+      skeinWeightGrams: yarn.skeinWeightGrams ?? null,
       quantity: yarn.quantity,
       projects: projectNames(yarn.projects),
     })),
@@ -486,8 +528,13 @@ document.querySelector("#import-file").addEventListener("change", async (event) 
       const lengthMeters = rawLength == null || rawLength === ""
         ? null
         : backup.version === 1 ? yardsToMeters(rawLength) : Number(rawLength);
+      const rawSkeinWeight = item.skeinWeightGrams;
+      const skeinWeightGrams = rawSkeinWeight == null || rawSkeinWeight === ""
+        ? null
+        : Number(rawSkeinWeight);
       if (!text(item.name) || !Number.isInteger(quantity) || quantity < 0
         || (colorHex !== null && !isHexColor(colorHex))
+        || (skeinWeightGrams !== null && (!Number.isFinite(skeinWeightGrams) || skeinWeightGrams < 0))
         || (lengthMeters !== null && (!Number.isFinite(lengthMeters) || lengthMeters < 0))) {
         throw new Error("De back-up bevat garengegevens die niet geldig zijn.");
       }
@@ -499,6 +546,7 @@ document.querySelector("#import-file").addEventListener("change", async (event) 
         weight: text(item.weight),
         fiber: text(item.fiber),
         lengthMeters,
+        skeinWeightGrams,
         quantity,
         projects: projectNames(Array.isArray(item.projects) ? item.projects.join(", ") : item.projects),
       };

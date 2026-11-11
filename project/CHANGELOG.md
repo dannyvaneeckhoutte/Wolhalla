@@ -2,6 +2,12 @@
 
 Belangrijke projectwijzigingen staan hier, met de nieuwste bovenaan.
 
+## Nog niet uitgebracht
+
+- Optioneel bolgewicht in gram toegevoegd aan garen, kaarten en back-ups.
+- Donkere modus is de standaard; een blijvende schakelaar wisselt tussen donker en licht.
+- Lijstweergave is de standaard; kleurstalen tonen de garenkleur zonder verloop.
+
 ## 1.1.0 - 2026-11-11
 
 - Lengtes worden in meters bijgehouden; bestaande browsergegevens en versie 1-back-ups worden vanuit yards omgerekend.

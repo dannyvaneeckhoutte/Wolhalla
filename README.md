@@ -11,8 +11,9 @@ draaien.
 
 ## Functies
 
-- Garen beheren met Nederlandse kleurnamen, merk, dikte, samenstelling, lengte in meters en aantal bollen.
-- Voorraad in miniaturen of als lijst bekijken, projecten koppelen, zoeken en sorteren.
+- Garen beheren met Nederlandse kleurnamen, merk, dikte, samenstelling, lengte in meters, gewicht per bol en aantal bollen.
+- Voorraad standaard als lijst bekijken of naar miniaturen wisselen, projecten koppelen, zoeken en sorteren.
+- De app standaard in donkere modus gebruiken of overschakelen naar de lichte modus.
 - Je voorraad bewaren in de browser en back-ups exporteren of importeren.
 
 De kleurnamen volgen de CSS-namen uit de
