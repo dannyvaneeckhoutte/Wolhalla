@@ -5,7 +5,7 @@ app werkt zonder account of server en kan als statische site op GitHub Pages
 draaien.
 
 [Open de live app](https://dannyvaneeckhoutte.github.io/Wolhalla/) ·
-[Bekijk release v1.1.0](https://github.com/dannyvaneeckhoutte/Wolhalla/releases/tag/v1.1.0)
+[Bekijk release v1.2.0](https://github.com/dannyvaneeckhoutte/Wolhalla/releases/tag/v1.2.0)
 
 [![GitHub Pages deployment](https://github.com/dannyvaneeckhoutte/Wolhalla/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/dannyvaneeckhoutte/Wolhalla/actions/workflows/pages.yml)
 
