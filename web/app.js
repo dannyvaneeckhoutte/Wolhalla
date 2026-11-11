@@ -1,34 +1,49 @@
 const DATABASE_NAME = "wolhalla-web";
-const DATABASE_VERSION = 1;
+const DATABASE_VERSION = 2;
 const STORE_NAME = "yarns";
-const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const DEFAULT_COLOR = "#355747";
 const BACKUP_FORMAT = "wolhalla-backup";
 
 const form = document.querySelector("#yarn-form");
 const yarnList = document.querySelector("#yarn-list");
 const searchInput = document.querySelector("#search");
 const sortSelect = document.querySelector("#sort");
-const fileInput = document.querySelector("#photo");
-const photoPreview = document.querySelector("#photo-preview");
+const colorInput = document.querySelector("#color");
+const colorPicker = document.querySelector("#color-picker");
 const saveButton = document.querySelector("#save-button");
 const deleteButton = document.querySelector("#delete-button");
 const toast = document.querySelector("#toast");
 
 let yarns = [];
 let selectedId = null;
-let selectedPhoto = null;
 let toastTimer;
 
 function openDatabase() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = (event) => {
+      const database = request.result;
       if (!request.result.objectStoreNames.contains(STORE_NAME)) {
-        request.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+        database.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+      }
+      if (event.oldVersion < 2) {
+        const store = request.transaction.objectStore(STORE_NAME);
+        const cursorRequest = store.openCursor();
+        cursorRequest.onsuccess = () => {
+          const cursor = cursorRequest.result;
+          if (!cursor) return;
+          const yarn = cursor.value;
+          const yardage = yarn.yardage;
+          yarn.lengthMeters = yardage == null || yardage === "" ? null : yardsToMeters(yardage);
+          delete yarn.yardage;
+          cursor.update(yarn);
+          cursor.continue();
+        };
       }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
+    request.onblocked = () => reject(new Error("Sluit andere Wolhalla-tabbladen en laad de pagina opnieuw om je voorraad bij te werken."));
   });
 }
 
@@ -75,6 +90,23 @@ function text(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function yardsToMeters(value) {
+  return Number(value) * 0.9144;
+}
+
+function formatLengthMeters(value) {
+  if (value === null || value === undefined || value === "") return "";
+  const amount = Number(value);
+  return Number.isFinite(amount)
+    ? `${new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 2 }).format(amount)} m`
+    : "";
+}
+
+function setColorPicker(value) {
+  const color = text(value);
+  colorPicker.value = /^#[\da-f]{6}$/i.test(color) ? color : DEFAULT_COLOR;
+}
+
 function projectNames(value) {
   const names = [];
   const seen = new Set();
@@ -87,12 +119,6 @@ function projectNames(value) {
     }
   }
   return names;
-}
-
-function formatYardage(value) {
-  if (value === null || value === undefined || value === "") return "";
-  const amount = Number(value);
-  return Number.isFinite(amount) ? `${new Intl.NumberFormat("nl-NL").format(amount)} yd` : "";
 }
 
 function createChip(label, className = "detail-chip") {
@@ -112,19 +138,15 @@ function createYarnCard(yarn) {
   button.setAttribute("aria-label", `Bewerk ${yarn.name}`);
   button.addEventListener("click", () => selectYarn(yarn.id));
 
-  if (yarn.photoData) {
-    const image = document.createElement("img");
-    image.className = "yarn-photo";
-    image.src = yarn.photoData;
-    image.alt = `Foto van ${yarn.name}`;
-    button.append(image);
-  } else {
-    const placeholder = document.createElement("span");
-    placeholder.className = "yarn-placeholder";
-    placeholder.setAttribute("aria-hidden", "true");
-    placeholder.textContent = "w";
-    button.append(placeholder);
+  const swatch = document.createElement("span");
+  swatch.className = "yarn-swatch";
+  swatch.setAttribute("aria-hidden", "true");
+  swatch.textContent = "w";
+  if (window.CSS && CSS.supports("color", text(yarn.color))) {
+    swatch.style.backgroundColor = text(yarn.color);
+    swatch.classList.add("has-color");
   }
+  button.append(swatch);
 
   const content = document.createElement("div");
   content.className = "yarn-content";
@@ -146,7 +168,7 @@ function createYarnCard(yarn) {
 
   const details = document.createElement("div");
   details.className = "yarn-details";
-  [yarn.color, yarn.weight, yarn.fiber, formatYardage(yarn.yardage)]
+  [yarn.color, yarn.weight, yarn.fiber, formatLengthMeters(yarn.lengthMeters)]
     .filter(Boolean)
     .forEach((detail) => details.append(createChip(detail)));
   if (details.childElementCount) content.append(details);
@@ -201,46 +223,30 @@ function render() {
   document.querySelector("#inventory-count").textContent = `${filtered.length} ${filtered.length === 1 ? "item" : "items"}`;
 }
 
-function updatePhotoPreview() {
-  photoPreview.replaceChildren();
-  photoPreview.hidden = !selectedPhoto;
-  if (!selectedPhoto) return;
-
-  const image = document.createElement("img");
-  image.src = selectedPhoto;
-  image.alt = "Geselecteerde garenfoto";
-  const label = document.createElement("span");
-  label.textContent = "Foto toegevoegd";
-  photoPreview.append(image, label);
-}
-
 function resetForm() {
   form.reset();
   form.elements.quantity.value = "1";
   selectedId = null;
-  selectedPhoto = null;
+  setColorPicker(colorInput.value);
   saveButton.textContent = "Garen opslaan";
   deleteButton.hidden = true;
-  updatePhotoPreview();
 }
 
 function selectYarn(id) {
   const yarn = yarns.find((item) => item.id === id);
   if (!yarn) return;
   selectedId = yarn.id;
-  selectedPhoto = yarn.photoData || null;
   form.elements.name.value = yarn.name;
   form.elements.brand.value = yarn.brand;
   form.elements.color.value = yarn.color;
+  setColorPicker(yarn.color);
   form.elements.weight.value = yarn.weight;
   form.elements.fiber.value = yarn.fiber;
-  form.elements.yardage.value = yarn.yardage ?? "";
+  form.elements.lengthMeters.value = yarn.lengthMeters ?? "";
   form.elements.quantity.value = String(yarn.quantity);
   form.elements.projects.value = projectNames(yarn.projects).join(", ");
-  fileInput.value = "";
   saveButton.textContent = "Wijzigingen opslaan";
   deleteButton.hidden = false;
-  updatePhotoPreview();
   document.querySelector("#form-title").textContent = "Garen bewerken";
   document.querySelector("#name").focus();
 }
@@ -250,8 +256,8 @@ form.addEventListener("submit", async (event) => {
   if (!form.reportValidity()) return;
 
   const quantity = Number(form.elements.quantity.value);
-  const yardageInput = form.elements.yardage.value;
-  const yardage = yardageInput === "" ? null : Number(yardageInput);
+  const lengthInput = form.elements.lengthMeters.value;
+  const lengthMeters = lengthInput === "" ? null : Number(lengthInput);
   const name = text(form.elements.name.value);
   if (!name) {
     form.elements.name.setCustomValidity("Vul een garennaam in.");
@@ -259,7 +265,7 @@ form.addEventListener("submit", async (event) => {
     form.elements.name.setCustomValidity("");
     return;
   }
-  if (!Number.isInteger(quantity) || quantity < 0 || (yardage !== null && (!Number.isFinite(yardage) || yardage < 0))) {
+  if (!Number.isInteger(quantity) || quantity < 0 || (lengthMeters !== null && (!Number.isFinite(lengthMeters) || lengthMeters < 0))) {
     showToast("Controleer het aantal bollen en de garenlengte.", true);
     return;
   }
@@ -272,10 +278,9 @@ form.addEventListener("submit", async (event) => {
     color: text(form.elements.color.value),
     weight: text(form.elements.weight.value),
     fiber: text(form.elements.fiber.value),
-    yardage,
+    lengthMeters,
     quantity,
     projects: projectNames(form.elements.projects.value),
-    photoData: selectedPhoto,
   };
   if (selectedId !== null) record.id = selectedId;
 
@@ -288,33 +293,6 @@ form.addEventListener("submit", async (event) => {
     showToast(previous ? "Je garen is bijgewerkt." : "Garen toegevoegd aan je voorraad.");
   } catch (error) {
     showToast(`Opslaan is niet gelukt: ${error.message}`, true);
-  }
-});
-
-fileInput.addEventListener("change", async () => {
-  const file = fileInput.files[0];
-  if (!file) return;
-  if (!file.type.startsWith("image/")) {
-    fileInput.value = "";
-    showToast("Kies een afbeeldingsbestand.", true);
-    return;
-  }
-  if (file.size > MAX_PHOTO_BYTES) {
-    fileInput.value = "";
-    showToast("Deze foto is groter dan 5 MB.", true);
-    return;
-  }
-
-  try {
-    selectedPhoto = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(reader.error || new Error("De foto kon niet worden gelezen."));
-      reader.readAsDataURL(file);
-    });
-    updatePhotoPreview();
-  } catch (error) {
-    showToast(`De foto kon niet worden geladen: ${error.message}`, true);
   }
 });
 
@@ -341,13 +319,30 @@ deleteButton.addEventListener("click", async () => {
 
 searchInput.addEventListener("input", render);
 sortSelect.addEventListener("change", render);
+colorPicker.addEventListener("input", () => {
+  colorInput.value = colorPicker.value;
+});
+colorInput.addEventListener("input", () => {
+  if (/^#[\da-f]{6}$/i.test(colorInput.value.trim())) {
+    colorPicker.value = colorInput.value.trim();
+  }
+});
 
 document.querySelector("#export-button").addEventListener("click", () => {
   const backup = {
     format: BACKUP_FORMAT,
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
-    yarns,
+    yarns: yarns.map((yarn) => ({
+      name: yarn.name,
+      brand: yarn.brand,
+      color: yarn.color,
+      weight: yarn.weight,
+      fiber: yarn.fiber,
+      lengthMeters: yarn.lengthMeters ?? null,
+      quantity: yarn.quantity,
+      projects: projectNames(yarn.projects),
+    })),
   };
   const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }));
   const link = document.createElement("a");
@@ -368,16 +363,17 @@ document.querySelector("#import-file").addEventListener("change", async (event) 
   if (!file) return;
   try {
     const backup = JSON.parse(await file.text());
-    if (backup.format !== BACKUP_FORMAT || backup.version !== 1 || !Array.isArray(backup.yarns)) {
+    if (backup.format !== BACKUP_FORMAT || ![1, 2].includes(backup.version) || !Array.isArray(backup.yarns)) {
       throw new Error("Dit is geen geldige Wolhalla-back-up.");
     }
     const imported = backup.yarns.map((item) => {
       const quantity = Number(item.quantity);
-      const yardage = item.yardage == null || item.yardage === "" ? null : Number(item.yardage);
+      const rawLength = backup.version === 1 ? item.yardage : item.lengthMeters;
+      const lengthMeters = rawLength == null || rawLength === ""
+        ? null
+        : backup.version === 1 ? yardsToMeters(rawLength) : Number(rawLength);
       if (!text(item.name) || !Number.isInteger(quantity) || quantity < 0
-        || (yardage !== null && (!Number.isFinite(yardage) || yardage < 0))
-        || (item.photoData != null && (typeof item.photoData !== "string"
-          || !/^data:image\/[a-z0-9.+-]+;base64,/i.test(item.photoData)))) {
+        || (lengthMeters !== null && (!Number.isFinite(lengthMeters) || lengthMeters < 0))) {
         throw new Error("De back-up bevat garengegevens die niet geldig zijn.");
       }
       return {
@@ -386,10 +382,9 @@ document.querySelector("#import-file").addEventListener("change", async (event) 
         color: text(item.color),
         weight: text(item.weight),
         fiber: text(item.fiber),
-        yardage,
+        lengthMeters,
         quantity,
         projects: projectNames(Array.isArray(item.projects) ? item.projects.join(", ") : item.projects),
-        photoData: item.photoData || null,
       };
     });
     const itemLabel = imported.length === 1 ? "item" : "items";

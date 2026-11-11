@@ -69,7 +69,10 @@
                 </div>
                 <div>
                   <label for="color">Kleur</label>
-                  <input id="color" name="color" type="text" maxlength="100" placeholder="Bijv. mosgroen">
+                  <div class="color-entry">
+                    <input id="color" name="color" type="text" maxlength="100" placeholder="Bijv. mosgroen">
+                    <input class="color-picker" id="color-picker" type="color" value="#355747" aria-label="Kleur kiezen">
+                  </div>
                 </div>
               </div>
 
@@ -86,8 +89,8 @@
 
               <div class="field-row">
                 <div>
-                  <label for="yardage">Lengte <span class="label-hint">(yards per bol)</span></label>
-                  <input id="yardage" name="yardage" type="number" min="0" step="any" placeholder="0">
+                  <label for="lengthMeters">Lengte <span class="label-hint">(meter per bol)</span></label>
+                  <input id="lengthMeters" name="lengthMeters" type="number" min="0" step="any" placeholder="0">
                 </div>
                 <div>
                   <label for="quantity">Aantal bollen <span class="required">*</span></label>
@@ -98,11 +101,6 @@
               <label for="projects">Projecten</label>
               <input id="projects" name="projects" type="text" maxlength="300" placeholder="Bijv. zomertop, sjaal">
               <p class="field-help">Meerdere projecten? Scheid ze met een komma.</p>
-
-              <label for="photo">Foto</label>
-              <input id="photo" name="photo" type="file" accept="image/*">
-              <p class="field-help">Foto's blijven in deze browser bewaard (max. 5 MB).</p>
-              <div class="photo-preview" id="photo-preview" hidden></div>
 
               <div class="form-actions">
                 <button class="button button-primary" id="save-button" type="submit">Garen opslaan</button>
@@ -130,6 +128,7 @@
                 <span class="visually-hidden">Sorteer voorraad</span>
                 <select id="sort">
                   <option value="name">Naam A–Z</option>
+                  <option value="color">Kleur A–Z</option>
                   <option value="quantity">Aantal bollen</option>
                   <option value="brand">Merk A–Z</option>
                 </select>

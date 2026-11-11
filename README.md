@@ -11,8 +11,8 @@ draaien.
 
 ## Functies
 
-- Garen beheren met merk, kleur, dikte, samenstelling, lengte en aantal bollen.
-- Projecten koppelen, foto's tot 5 MB toevoegen, zoeken en sorteren.
+- Garen beheren met merk, kleurkiezer, dikte, samenstelling, lengte in meters en aantal bollen.
+- Projecten koppelen, zoeken en sorteren op naam, kleur, merk of aantal bollen.
 - Je voorraad bewaren in de browser en back-ups exporteren of importeren.
 
 ## GitHub Pages
@@ -23,9 +23,10 @@ van [`web/`](./web/) na een push naar `main`. Schakel onder
 
 ## Gegevens en lokaal gebruik
 
-Voorraad en foto's worden lokaal in IndexedDB van je browser bewaard. Ze worden
-niet gesynchroniseerd met andere browsers of apparaten. Een back-up importeren
-vervangt de huidige voorraad.
+De voorraad wordt lokaal in IndexedDB van je browser bewaard. Ze wordt niet
+gesynchroniseerd met andere browsers of apparaten. Een back-up importeren
+vervangt de huidige voorraad. Back-ups van versie 1 met lengtes in yards blijven
+importeerbaar; deze worden bij het importeren naar meters omgerekend.
 
 Open de bestanden in `web/` via een lokale statische webserver om de app lokaal
 te gebruiken; er zijn geen pakketinstallaties of buildstappen nodig.

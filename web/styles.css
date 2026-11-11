@@ -324,20 +324,19 @@ input::placeholder {
   color: #a8aaa4;
 }
 
-input[type="file"] {
-  width: 100%;
-  color: var(--muted);
-  font-size: 11px;
+.color-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 6px;
 }
 
-input[type="file"]::file-selector-button {
-  margin-right: 9px;
-  padding: 8px 10px;
+.color-entry input[type="color"] {
+  width: 42px;
+  height: 40px;
+  padding: 4px;
   border: 1px solid var(--line);
-  border-radius: 5px;
-  background: #faf9f5;
-  color: var(--ink);
-  font: inherit;
+  border-radius: 6px;
+  background: #fff;
   cursor: pointer;
 }
 
@@ -353,22 +352,6 @@ input[type="file"]::file-selector-button {
 
 .field-help {
   margin: 5px 0 0;
-}
-
-.photo-preview {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.photo-preview img {
-  width: 48px;
-  height: 48px;
-  border-radius: 6px;
-  object-fit: cover;
 }
 
 .form-actions {
@@ -455,15 +438,10 @@ input[type="file"]::file-selector-button {
   outline-offset: 2px;
 }
 
-.yarn-photo,
-.yarn-placeholder {
+.yarn-swatch {
   width: 84px;
   height: 100%;
   min-height: 142px;
-  object-fit: cover;
-}
-
-.yarn-placeholder {
   display: grid;
   place-items: center;
   background:
@@ -473,6 +451,11 @@ input[type="file"]::file-selector-button {
   font-family: "Playfair Display", Georgia, serif;
   font-size: 34px;
   font-style: italic;
+}
+
+.yarn-swatch.has-color {
+  color: rgba(255, 255, 255, .82);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .35);
 }
 
 .yarn-content {
@@ -626,10 +609,6 @@ footer {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   clip-path: inset(50%);
-}
-
-input[type="file"].visually-hidden {
-  width: 1px;
 }
 
 [hidden] {
