@@ -2,8 +2,9 @@
 
 Belangrijke projectwijzigingen staan hier, met de nieuwste bovenaan.
 
-## Nog niet uitgebracht
+## 1.2.0 - 2026-11-11
 
+- Bewaarlocaties toegevoegd voor vier vakken in de garage en vier vakken in de living.
 - Optioneel bolgewicht in gram toegevoegd aan garen, kaarten en back-ups.
 - Donkere modus is de standaard; een blijvende schakelaar wisselt tussen donker en licht.
 - Lijstweergave is de standaard; kleurstalen tonen de garenkleur zonder verloop.

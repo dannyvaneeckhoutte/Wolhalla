@@ -11,7 +11,8 @@ draaien.
 
 ## Functies
 
-- Garen beheren met Nederlandse kleurnamen, merk, dikte, samenstelling, lengte in meters, gewicht per bol en aantal bollen.
+- Garen beheren met Nederlandse kleurnamen, merk, dikte, samenstelling, lengte in meters, gewicht per bol, bewaarlocatie en aantal bollen.
+- Garen toewijzen aan een van de vier vakken in de bruine kast in de garage of de kast aan het raam in de living.
 - Voorraad standaard als lijst bekijken of naar miniaturen wisselen, projecten koppelen, zoeken en sorteren.
 - De app standaard in donkere modus gebruiken of overschakelen naar de lichte modus.
 - Je voorraad bewaren in de browser en back-ups exporteren of importeren.

@@ -17,6 +17,9 @@ for (const color of COLOR_PALETTE) {
 }
 
 const form = document.querySelector("#yarn-form");
+const LOCATION_OPTIONS = new Set(
+  Array.from(form.elements.location.options, (option) => option.value).filter(Boolean),
+);
 const yarnList = document.querySelector("#yarn-list");
 const searchInput = document.querySelector("#search");
 const sortSelect = document.querySelector("#sort");
@@ -267,6 +270,7 @@ function createYarnCard(yarn) {
     yarn.fiber,
     formatLengthMeters(yarn.lengthMeters),
     formatSkeinWeightGrams(yarn.skeinWeightGrams),
+    yarn.location,
   ]
     .filter(Boolean)
     .forEach((detail) => details.append(createChip(detail)));
@@ -291,7 +295,7 @@ function render() {
   const filtered = yarns
     .filter((yarn) => [
       yarn.name, yarn.brand, yarn.color, displayColorName(yarn.color), yarn.weight, yarn.fiber,
-      formatSkeinWeightGrams(yarn.skeinWeightGrams), ...projectNames(yarn.projects),
+      formatSkeinWeightGrams(yarn.skeinWeightGrams), yarn.location, ...projectNames(yarn.projects),
     ].some((value) => text(value).toLocaleLowerCase("nl").includes(query)))
     .sort((a, b) => sortBy === "quantity"
       ? b.quantity - a.quantity || a.name.localeCompare(b.name, "nl")
@@ -363,6 +367,7 @@ function selectYarn(id) {
   form.elements.lengthMeters.value = yarn.lengthMeters ?? "";
   form.elements.skeinWeightGrams.value = yarn.skeinWeightGrams ?? "";
   form.elements.quantity.value = String(yarn.quantity);
+  form.elements.location.value = yarn.location ?? "";
   form.elements.projects.value = projectNames(yarn.projects).join(", ");
   saveButton.textContent = "Wijzigingen opslaan";
   deleteButton.hidden = false;
@@ -407,6 +412,7 @@ form.addEventListener("submit", async (event) => {
     lengthMeters,
     skeinWeightGrams,
     quantity,
+    location: text(form.elements.location.value),
     projects: projectNames(form.elements.projects.value),
   };
   if (selectedId !== null) record.id = selectedId;
@@ -493,6 +499,7 @@ document.querySelector("#export-button").addEventListener("click", () => {
       lengthMeters: yarn.lengthMeters ?? null,
       skeinWeightGrams: yarn.skeinWeightGrams ?? null,
       quantity: yarn.quantity,
+      location: yarn.location ?? "",
       projects: projectNames(yarn.projects),
     })),
   };
@@ -532,6 +539,13 @@ document.querySelector("#import-file").addEventListener("change", async (event) 
       const skeinWeightGrams = rawSkeinWeight == null || rawSkeinWeight === ""
         ? null
         : Number(rawSkeinWeight);
+      if (item.location != null && typeof item.location !== "string") {
+        throw new Error("De back-up bevat een onbekende bewaarlocatie.");
+      }
+      const location = text(item.location);
+      if (location && !LOCATION_OPTIONS.has(location)) {
+        throw new Error("De back-up bevat een onbekende bewaarlocatie.");
+      }
       if (!text(item.name) || !Number.isInteger(quantity) || quantity < 0
         || (colorHex !== null && !isHexColor(colorHex))
         || (skeinWeightGrams !== null && (!Number.isFinite(skeinWeightGrams) || skeinWeightGrams < 0))
@@ -548,6 +562,7 @@ document.querySelector("#import-file").addEventListener("change", async (event) 
         lengthMeters,
         skeinWeightGrams,
         quantity,
+        location,
         projects: projectNames(Array.isArray(item.projects) ? item.projects.join(", ") : item.projects),
       };
     });
